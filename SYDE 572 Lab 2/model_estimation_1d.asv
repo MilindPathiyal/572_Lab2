@@ -124,9 +124,9 @@ hold off;
 % Dataset B
 N_a = length(a);
 N_b = length(b);
-min_range = min(a(1,:))-1;
-max_range = max(a(1,:))+1;
-x_a_parzen = min_range:0.01:max_range;
+min = min(a(1,:))-1;
+max = max(a(1,:))+1;
+x_a_parzen = min:0.01:max;
 
 true_1 = normpdf(x_a_parzen,mu,sigma);
 est_1 = parzen_1d(a,x_a_parzen,N_a,0.1);
@@ -134,27 +134,24 @@ est_2 = parzen_1d(a,x_a_parzen,N_a,0.4);
 
 figure(7);
 hold on;
-plot(x_a_parzen,true_1, 'b');
-plot(x_a_parzen,est_1, 'r');
-plot(x_a_parzen,est_2, 'g');
 scatter(a,y_a);
-title('Model Estimation 1D Case - Non-Parametric Estimation - Set A');
-legend('Normal Distribution', 'Estimated Distribution 1', 'Estimated Distribution 2', 'Dataset-A Distribution');
+plot(x_a_parzen,true_1);
+plot(x_a_parzen,est_1);
+plot(x_a_parzen,est_2);
 hold off;
 
 % Dataset B
 exp_true = exppdf(x_b,1/lambda);
+
 est_3 = parzen_1d(b,x_b,N_b,0.1);
 est_4 = parzen_1d(b,x_b,N_b,0.4);
 
 figure(8);
 hold on;
-plot(x_b,exp_true, 'b');
-plot(x_b, est_3, 'r');
-plot(x_b, est_4, 'g');
 scatter(b,y_b);
-title('Model Estimation 1D Case - Non-Parametric Estimation - Set B');
-legend('Normal Distribution', 'Estimated Distribution 1', 'Estimated Distribution 2', 'Dataset-B Distribution');
+plot(x_b,exp_);
+plot(x_b, est_3);
+plot(x_b, est_4);
 hold off;
 
 
