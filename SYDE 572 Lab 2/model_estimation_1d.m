@@ -158,5 +158,63 @@ legend('Normal Distribution', 'Estimated Distribution 1', 'Estimated Distributio
 hold off;
 
 
+%% Parametric Estimation 2D 
 
+clear;
+% close all;
+load('lab2_2.mat');
 
+%% Non-Parametric Estimation 2D 
+
+sigma_sqr = 400;
+cov_mat = [sigma_sqr 0; 0 sigma_sqr];
+mu_2 = [sigma_sqr/2 sigma_sqr/2];
+
+step_size = 1;
+[x1,x2] = meshgrid(1:1:sigma_sqr);
+par_window = mvnpdf([x1(:) x2(:)], mu_2, cov_mat);
+par_window = reshape(par_window,length(x2),length(x1));
+
+min_x = min([min(al(:,1)), min(bl(:,1)), min(cl(:,1))]) - 10;
+min_y = min([min(al(:,2)), min(bl(:,2)), min(cl(:,2))]) - 10;
+max_x = max([max(al(:,1)), max(bl(:,1)), max(cl(:,1))]) + 10;
+max_y = max([max(al(:,2)), max(bl(:,2)), max(cl(:,2))]) + 10;
+
+% Defining the area of interest
+area = [step_size min_x min_y max_x max_y];
+
+% Calculating distributions
+[par_a, x_a, y_a] = parzen_2d(al,area, par_window);
+[par_b, x_b, y_b] = parzen_2d(bl,area, par_window);
+[par_c, x_c, y_c] = parzen_2d(cl,area, par_window);
+
+figure(9);
+hold on;
+scatter(al(:,1),al(:,2));
+contour(x_a,y_a,par_a);
+scatter(bl(:,1),bl(:,2));
+contour(x_b,y_b,par_b);
+scatter(cl(:,1),cl(:,2));
+contour(x_c,y_c,par_c);
+hold off;
+
+[x_2,y_2] = meshgrid(x_a, y_a);
+ML_2 = zeros(size(x_2));
+for i = 1:size(x_2,1)
+   for j = 1:size(y_2,2)
+       [max_par, class] = max([par_a(i,j), par_b(i,j), par_c(i,j)]);
+       ML_2(i,j) = class;
+   end
+end
+
+figure(10);
+hold on;
+
+% ML decision boundary 
+contourf(x_2, y_2, ML_2, 'Color', 'black');
+
+a = scatter(at(:, 1), at(:, 2), 'r*');
+b = scatter(bt(:, 1), bt(:, 2), 'b+');
+c = scatter(ct(:, 1), ct(:, 2), 'ko');
+
+hold off;
