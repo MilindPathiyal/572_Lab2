@@ -188,7 +188,6 @@ area = [step_size min_x min_y max_x max_y];
 [par_b, x_b, y_b] = parzen_2d(bl,area, par_window);
 [par_c, x_c, y_c] = parzen_2d(cl,area, par_window);
 
-% Plotting the Parzen window density estimate
 figure(9);
 hold on;
 scatter(al(:,1),al(:,2));
@@ -198,7 +197,7 @@ contour(x_b,y_b,par_b);
 scatter(cl(:,1),cl(:,2));
 contour(x_c,y_c,par_c);
 title('Model Estimation 2D Case - Non-Parametric Estimation');
-legend('Cluster a', 'Contour a', 'Cluster b', 'Contour b', 'Cluster c', 'Contour b');
+legend('Cluster a', '' 'Cluster b', 'Cluster c', 'Dataset-B Distribution');
 hold off;
 
 [x_2,y_2] = meshgrid(x_a, y_a);
@@ -214,12 +213,10 @@ figure(10);
 hold on;
 
 % ML decision boundary 
-contourf(x_2, y_2, ML_2);
+contourf(x_2, y_2, ML_2, 'Color', 'black');
 
 a = scatter(at(:, 1), at(:, 2), 'r*');
 b = scatter(bt(:, 1), bt(:, 2), 'b+');
 c = scatter(ct(:, 1), ct(:, 2), 'ko');
-title('Model Estimation 2D Case - Non-Parametric Estimation');
-legend('ML decision boundaries', 'Cluster a', 'Cluster b', 'Cluster c');
 
 hold off;
