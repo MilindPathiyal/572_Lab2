@@ -1,5 +1,5 @@
-%Driver Code for Part 2 
-%Model Estimation 1-D case
+%Driver Code for Lab 2 
+%Model Estimation 1-D and 2-D case
 
 close all;
 
@@ -121,7 +121,7 @@ hold off;
 
 %% Non-Parametric Estimation 1D 
 
-% Dataset B
+% Dataset A
 N_a = length(a);
 N_b = length(b);
 min_range = min(a(1,:))-1;
@@ -158,11 +158,63 @@ legend('Normal Distribution', 'Estimated Distribution 1', 'Estimated Distributio
 hold off;
 
 
-%% Parametric Estimation 2D 
+%% Model Estimation 2D 
 
 clear;
 % close all;
 load('lab2_2.mat');
+
+%% Parametric Estimation
+lowx = min([min(al(:,1)), min(bl(:,1)), min(cl(:,1))]) - 10;
+lowy = min([min(al(:,2)), min(bl(:,2)), min(cl(:,2))]) - 10;
+highx = max([max(al(:,1)), max(bl(:,1)), max(cl(:,1))]) + 10;
+highy = max([max(al(:,2)), max(bl(:,2)), max(cl(:,2))]) + 10;
+step_size = 1.0;
+
+x = lowx:step_size:highx;
+y = lowy:step_size:highy;
+[xx, yy] = meshgrid(x, y);
+
+[mu_al, cov_al] = model_estimation_2d_gaussian(al);
+[mu_bl, cov_bl] = model_estimation_2d_gaussian(bl);
+[mu_cl, cov_cl] = model_estimation_2d_gaussian(cl);
+
+
+ML_ab = model_estimation_2d_ML(mu_al, cov_al, mu_bl, cov_bl, xx, yy);
+ML_ac = model_estimation_2d_ML(mu_cl, cov_cl, mu_al, cov_cl, xx, yy);
+ML_bc = model_estimation_2d_ML(mu_bl, cov_bl, mu_cl, cov_cl, xx, yy);
+
+ML_boundaries = zeros(size(xx, 1), size(yy, 2));
+for i = 1:size(xx,1)
+    for j = 1:size(yy,2)
+        [ignore, class] = min([ML_ab(i,j), ML_ac(i,j), ML_bc(i,j)]);
+        ML_boundaries(i,j) = class;
+    end
+end
+
+figure(9);
+hold on;
+
+% Defining a color map for the regions
+% red = class A
+% blue = class B
+% dark grey = class C
+map = [
+    0.5, 0.5, 1
+    1, 0.5, 0.5
+    0.6,0.6,0.6];
+colormap(map);
+
+% Plotting ML decision boundary in black
+contourf(xx, yy, ML_boundaries, 'Color', 'black');
+
+title('Model Estimation 2D Case - Parametric Estimation');
+legend('ML decision boundaries', 'Cluster a', 'Cluster b', 'Cluster c');
+class_c = scatter(at(:, 1), at(:, 2), 'r*');
+class_d = scatter(bt(:, 1), bt(:, 2), 'b+');
+class_e = scatter(ct(:, 1), ct(:, 2), 'ko');
+
+hold off;
 
 %% Non-Parametric Estimation 2D 
 
@@ -189,7 +241,7 @@ area = [step_size min_x min_y max_x max_y];
 [par_c, x_c, y_c] = parzen_2d(cl,area, par_window);
 
 % Plotting the Parzen window density estimate
-figure(9);
+figure(10);
 hold on;
 scatter(al(:,1),al(:,2));
 contour(x_a,y_a,par_a);
@@ -210,7 +262,7 @@ for i = 1:size(x_2,1)
    end
 end
 
-figure(10);
+figure(11);
 hold on;
 
 % ML decision boundary 
