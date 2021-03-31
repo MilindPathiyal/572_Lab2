@@ -18,7 +18,10 @@ lambda = 1;
 
 %% Parametric Estimation 1D – Gaussian
 % Dataset A
-[mu_estimation, sigma_estimation] = model_estimation_1d_gaussian(a);
+%Gaussian Calculation
+mu_estimation = sum(a) / length(a);
+var_e = sum((a - mu_estimation).^2) / length(a);
+sigma_estimation = sqrt(var_e);
 
 gauss_true = normpdf(x_a,mu,sigma);
 gauss_estimation = normpdf(x_a,mu_estimation, sigma_estimation);
@@ -35,7 +38,11 @@ grid on;
 hold off;
 
 % Dataset B
-[mu_estimation, sigma_estimation] = model_estimation_1d_gaussian(b);
+
+%Gaussian Calculation
+mu_estimation = sum(b) / length(b);
+var_e = sum((b - mu_estimation).^2) / length(b);
+sigma_estimation = sqrt(var_e);
 
 gauss_true = exppdf(x_b,1/lambda);
 gauss_estimation = normpdf(x_b,mu_estimation, sigma_estimation);
@@ -53,7 +60,13 @@ hold off;
 
 %% Parametric Estimation 1D - Exponential
 % Dataset A
-lambda_estimation = model_estimation_1d_exponential(a);
+
+lambda_estimation = 0;
+for i = 1:length(a)
+    lambda_estimation = lambda_estimation + a(i);
+end
+
+lambda_estimation = length(a) / lambda_estimation;
 
 exp_true = normpdf(x_a,mu,sigma);
 exp_estimation = exppdf(x_a, 1/lambda_estimation);
@@ -70,7 +83,13 @@ grid on;
 hold off;
 
 % Dataset B
-lambda_estimation = model_estimation_1d_exponential(b);
+lambda_estimation = 0;
+for i = 1:length(b)
+    lambda_estimation = lambda_estimation + b(i);
+end
+
+lambda_estimation = length(b) / lambda_estimation;
+
 
 exp_true = exppdf(x_b,1/lambda);
 exp_estimation = exppdf(x_b, 1/lambda_estimation);
@@ -88,7 +107,8 @@ hold off;
 %% Parametric Estimation 1D - Uniform
 % Dataset A
 
-[ML_a_a, ML_a_b] = model_estimation_1d_uniform(a);
+ML_a_a = min(a);
+ML_a_b = max(a);
 uniform_est = unifpdf(x_a, ML_a_a, ML_a_b);
 uniform_true = normpdf(x_a,mu,sigma);
 
@@ -106,7 +126,8 @@ hold off;
 % Dataset B
 exp_true = exppdf(x_b,1/lambda);
 
-[ML_b_a, ML_b_b] = model_estimation_1d_uniform(b);
+ML_b_a = min(b);
+ML_b_b = max(b);
 uniform_est = unifpdf(x_b, ML_b_a, ML_b_b);
 
 %Plotting
@@ -175,14 +196,35 @@ x = lowx:step_size:highx;
 y = lowy:step_size:highy;
 [xx, yy] = meshgrid(x, y);
 
-[mu_al, cov_al] = model_estimation_2d_gaussian(al);
-[mu_bl, cov_bl] = model_estimation_2d_gaussian(bl);
-[mu_cl, cov_cl] = model_estimation_2d_gaussian(cl);
+mu_al = sum(al) / length(al);
+cov_al = cov(al);
+mu_bl = sum(bl) / length(bl);
+cov_bl = cov(bl);
+mu_cl = sum(cl) / length(cl);
+cov_cl = cov(cl);
 
+%Perform ML Calculation
+ML_ab = zeros(size(xx, 1), size(yy, 2));
+ML_ac = zeros(size(xx, 1), size(yy, 2));
+ML_bc = zeros(size(xx, 1), size(yy, 2));
 
-ML_ab = model_estimation_2d_ML(mu_al, cov_al, mu_bl, cov_bl, xx, yy);
-ML_ac = model_estimation_2d_ML(mu_cl, cov_cl, mu_al, cov_cl, xx, yy);
-ML_bc = model_estimation_2d_ML(mu_bl, cov_bl, mu_cl, cov_cl, xx, yy);
+inv_cov_al = inv(cov_al);
+inv_cov_bl = inv(cov_bl);
+inv_cov_cl = inv(cov_cl);
+
+for i = 1:size(xx, 1)
+    for j = 1:size(yy, 2)
+    point = [xx(i,j), yy(i,j)];
+    dist_al = (point - mu_al) * inv_cov_al * transpose(point - mu_al);
+    dist_bl = (point - mu_bl) * inv_cov_bl * transpose(point - mu_bl);
+    dist_cl = (point - mu_cl) * inv_cov_cl * transpose(point - mu_cl);
+    
+    ML_ab(i,j) = dist_bl - dist_al;
+    ML_ac(i,j) = dist_al - dist_cl;
+    ML_bc(i,j) = dist_cl - dist_bl;
+
+    end
+end
 
 ML_boundaries = zeros(size(xx, 1), size(yy, 2));
 for i = 1:size(xx,1)
