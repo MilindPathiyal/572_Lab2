@@ -1,4 +1,4 @@
-function [correct_pred, false_pred] = evaluate_predictions(data, grid, X, Y, actual)
+function [correct_pred, false_pred] = predict(data, grid, X, Y, actual)
     correct_pred = [];
     false_pred = [];
     for row_index=1:size(data, 1)

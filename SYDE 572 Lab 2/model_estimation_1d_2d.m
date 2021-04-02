@@ -329,7 +329,7 @@ N = 3;
 plot_boundary = true;
 plot_error = false;
 
-run sequential_classifier
+run sequential
 
 % Limit to 5 sequential discriminants, but learn each of them 20 times and plot the error rates
 J = 5;
@@ -337,5 +337,5 @@ N = 20;
 plot_boundary = false;
 plot_error = true;
 
-run sequential_classifier
+run sequential
 

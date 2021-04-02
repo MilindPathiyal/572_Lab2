@@ -39,7 +39,6 @@ for n_iter=1:N
             for i=1:numel(X)
                 p = [X(i) Y(i)];
 
-                % Manual distance computation to increase performance
                 d_to_a = (p(1) - prot_a(1))^2 + (p(2) - prot_a(2))^2;
                 d_to_b = (p(1) - prot_b(1))^2 + (p(2) - prot_b(2))^2;
 
@@ -47,8 +46,8 @@ for n_iter=1:N
                 G(i) = cls_index;
             end
     
-            [n_aa, n_ab] = evaluate_predictions(subset_a, G, X, Y, cls_map('a'));
-            [n_bb, n_ba] = evaluate_predictions(subset_b, G, X, Y, cls_map('b'));
+            [n_aa, n_ab] = predict(subset_a, G, X, Y, cls_map('a'));
+            [n_bb, n_ba] = predict(subset_b, G, X, Y, cls_map('b'));
         end
 
         discriminant_list{end+1} = G;
@@ -64,9 +63,7 @@ for n_iter=1:N
         j = j+1;
     end
 
-    if plot_boundary
-        %grid_SC = classify_by_SC(discriminant_list, n_ab_list, n_ba_list, cls_map);
-        
+    if plot_boundary        
         
         grid_SC = zeros(size(discriminant_list{1}));
         for i=1:numel(grid_SC)
@@ -87,33 +84,27 @@ for n_iter=1:N
 
             end
         end
+        classes = {a,b};       
+        figure;
+        hold on;
         
         map = [
             1, 0.5, 0.5
             0.5, 0.5, 1
             ];
-        colormap(map);        
-        asci_ = 65;
+        colormap(map); 
+        contourf(X, Y, grid_SC);
 
-        legends = {classifier_};
-        for i=0:length(classes)-1
-            legends{end+1} = "Class " + char(asci_+i);
-        end
-
-        figure;
-        contourf(X, Y, grid_SC, 'Color', 'k');
-        hold on;
-        markers = {'o','X','s','+'};
-        colors = {'r','k','m'};
-        for i=1:length(classes)
-            x = classes{i}(:,1);
-            y = classes{i}(:,2);
-            markers{i};
-            scatter(x,y,25,colors{i},markers{i});
-            hold on;
-        end
-        legend(legends)
-        title(title_);
+        x = classes{1}(:,1);
+        y = classes{1}(:,2);
+        scatter(x,y,25,'r','+');
+    
+        x = classes{2}(:,1);
+        y = classes{2}(:,2);
+        scatter(x,y,25,'b','*');
+        
+        legend('Sequential Discriminants Classifier Decision Boundary', 'Class A', 'Class B')
+        title('Sequential  Discriminants Classifier Decision Boundary');
         hold off;
         
     end
