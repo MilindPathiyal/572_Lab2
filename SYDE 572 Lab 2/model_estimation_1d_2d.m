@@ -133,6 +133,7 @@ uniform_est = unifpdf(x_b, ML_b_a, ML_b_b);
 %Plotting
 figure(6);
 hold on;
+grid on;
 plot(x_b,exp_true, 'b');
 plot(x_b,uniform_est, 'r');
 scatter(b,y_b);
@@ -155,6 +156,7 @@ est_2 = parzen_1d(a,x_a_parzen,N_a,0.4);
 
 figure(7);
 hold on;
+grid on;
 plot(x_a_parzen,true_1, 'b');
 plot(x_a_parzen,est_1, 'r');
 plot(x_a_parzen,est_2, 'g');
@@ -170,6 +172,7 @@ est_4 = parzen_1d(b,x_b,N_b,0.4);
 
 figure(8);
 hold on;
+grid on;
 plot(x_b,exp_true, 'b');
 plot(x_b, est_3, 'r');
 plot(x_b, est_4, 'g');
@@ -237,13 +240,9 @@ end
 figure(9);
 hold on;
 
-% Defining a color map for the regions
-% red = class A
-% blue = class B
-% dark grey = class C
 map = [
-    0.5, 0.5, 1
     1, 0.5, 0.5
+    0.5, 0.5, 1
     0.6,0.6,0.6];
 colormap(map);
 
@@ -252,10 +251,9 @@ contourf(xx, yy, ML_boundaries, 'Color', 'black');
 
 title('Model Estimation 2D Case - Parametric Estimation');
 legend('ML decision boundaries', 'Cluster a', 'Cluster b', 'Cluster c');
-class_c = scatter(at(:, 1), at(:, 2), 'r*');
-class_d = scatter(bt(:, 1), bt(:, 2), 'b+');
+class_c = scatter(at(:, 1), at(:, 2), 'b+');
+class_d = scatter(bt(:, 1), bt(:, 2), 'r*');
 class_e = scatter(ct(:, 1), ct(:, 2), 'ko');
-
 hold off;
 
 %% Non-Parametric Estimation 2D 
@@ -281,7 +279,7 @@ area = [step_size min_x min_y max_x max_y];
 [par_a, x_a, y_a] = parzen_2d(al,area, par_window);
 [par_b, x_b, y_b] = parzen_2d(bl,area, par_window);
 [par_c, x_c, y_c] = parzen_2d(cl,area, par_window);
-
+    
 % Plotting the Parzen window density estimate
 figure(10);
 hold on;
@@ -310,6 +308,12 @@ hold on;
 % ML decision boundary 
 contourf(x_2, y_2, ML_2);
 
+map = [
+    1, 0.5, 0.5
+    0.5, 0.5, 1
+    0.6,0.6,0.6];
+colormap(map);
+
 a = scatter(at(:, 1), at(:, 2), 'r*');
 b = scatter(bt(:, 1), bt(:, 2), 'b+');
 c = scatter(ct(:, 1), ct(:, 2), 'ko');
@@ -317,3 +321,21 @@ title('Model Estimation 2D Case - Non-Parametric Estimation');
 legend('ML decision boundaries', 'Cluster a', 'Cluster b', 'Cluster c');
 
 hold off;
+
+%% Sequential 
+% Compute 3 sequential classifiers and plot them
+J = inf;
+N = 3;
+plot_boundary = true;
+plot_error = false;
+
+run sequential_classifier
+
+% Limit to 5 sequential discriminants, but learn each of them 20 times and plot the error rates
+J = 5;
+N = 20;
+plot_boundary = false;
+plot_error = true;
+
+run sequential_classifier
+
